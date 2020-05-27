@@ -44,14 +44,17 @@ function addTodo(userId, todoId){
 	}, 'id')
 }
 
-function update(id, user){
+function update(changes, id){
 	return db('users')
-	.where('id', Number(id))
-	.update(user);
+	.where({ id })
+	.update(changes)
+	.then(() => {
+		return findById(id)
+	});
 }
 
 function remove(id){
 	return db('users')
-	.where('id', Number(id))
+	.where({ id })
 	.del();
 }
