@@ -58,6 +58,53 @@ router.post('/:id/todos', (req, res) => {
   });
 });
 
+router.put('/id', (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  Users.findById(id)
+  .then(user => {
+    if(user){
+      Users.update(changes, id)
+      .then(updatedUser => {
+        res.json(updatedUser);
+      });
+    } else {
+      res.status(404).json({
+        message: 'Could not find user to update with that id'
+      });
+    };
+  })
+  .catch(error => {
+    res.status(500).json({
+      message: 'Failed to update user'
+    });
+  });
+});
+
+router.delete('/:id', (req, res) => {
+  const { id } = req.params;
+
+  Users.delete(id)
+  .then(deleted => {
+    if(deleted){
+      res.json({
+        message: 'Successfully nuked user'
+      });
+    } else {
+      res.status(404).json({
+        message: 'Could not find user with given id'
+      });
+    };
+  })
+  .catch(error => {
+    console.log(error);
+    res.status(500).json({
+      message: 'Failed to delete user'
+    });
+  });
+});
+
 function findUser(req, res, next){
   const { id } = req.params;
   Users.findById(id)
@@ -73,5 +120,7 @@ function findUser(req, res, next){
     });
   });
 };
+
+
 
 module.exports = router
