@@ -35,7 +35,7 @@ router.post( "/login", ( req, res ) => {
 			});
 		} else {
 			res.status(401).json({
-				message: error.message
+				message: 'Error receiving token'
 			});
 		};
 	})
