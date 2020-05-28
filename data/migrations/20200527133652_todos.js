@@ -3,9 +3,15 @@ exports.up = function(knex) {
   return knex.schema.createTable('todos', todos => {
     todos.increments().primary();
 
-    todos.string('title', 255).notNullable();
+    todos.string('name', 255).notNullable();
 
-    todos.string('description', 500).notNullable();
+    todos.string('noteItems', 500).notNullable();
+
+    todos.boolean('reoccurring').defaultsTo(false).notNullable();
+
+    todos.boolean('completed').defaultsTo(false).notNullable();
+
+    todos.string('category', 255).notNullable();
   })
 };
 
