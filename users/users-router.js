@@ -47,7 +47,7 @@ router.get("/:id/todos", findUser, (req, res) => {
 });
 
 router.post("/:id/todos", (req, res) => {
-  Users.addTodo(req.params.id, req.body.todo_id)
+  Users.addTodo(req.params.id, req.body)
     .then((response) => {
       res.status(201).json(response);
     })

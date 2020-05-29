@@ -36,14 +36,25 @@ function findUserTodos(userId) {
     .select("todos.*");
 }
 
-function addTodo(userId, todoId) {
-  return db("user_todos").insert(
-    {
-      user_id: userId,
-      todo_id: todoId,
-    },
-    "id"
-  );
+function addTodo(userId, todoBody) {
+  return db('todos').insert(todoBody)
+  .then((res)=> {
+    return db('user_todos').insert({
+      'user_id': userId,
+      'todo_id': res[0]
+    })
+    .then(() => {
+      return findUserTodos(userId);
+    })
+  })
+  
+  // return db("user_todos").insert(
+  //   {
+  //     user_id: userId,
+  //     todo_id: todoId,
+  //   },
+  //   "id"
+  // );
 }
 
 function findUserTodoById(id) {
