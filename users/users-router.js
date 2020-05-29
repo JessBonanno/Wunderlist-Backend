@@ -61,9 +61,29 @@ router.post("/:id/todos", (req, res) => {
 router.put("/:id/todos", (req, res) => {
   const changes = req.body;
   const name = req.body.name;
-  const {id} = req.params;
-        Users.updateTodoByUserId(changes, name, id)
-        .then(res => console.log(res))
+  const { id } = req.params;
+  Users.findById(id).then((user) => {
+    if (user) {
+      Users.updateTodoByUserId(changes, name, id).then((updatedTodos) => {
+        if (updatedTodos.length > 0) {
+          res.json(updatedTodos);
+        } else {
+          res.status(404).json({
+            message: 'Could not find that todo for user'
+          })
+        }
+      });
+    }  else {
+      res.status(404).json({
+        message: "Could not find user with that id",
+      });
+    }
+  })
+  .catch((error) => {
+    res.status(500).json({
+      message: "Failed to update todo",
+    });
+  });
 });
 
 router.put("/:id", (req, res) => {

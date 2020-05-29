@@ -47,22 +47,25 @@ function addTodo(userId, todoId) {
 }
 
 function findUserTodoById(id) {
-	return db('todos')
-	.where({'todos.id': id})
-	.first();
+  return db("todos").where({ "todos.id": id }).first();
 }
 
 function updateTodoByUserId(changes, name, userId) {
-	return db("todos")
-    .where("todos.id", userId)
+  return db("todos")
+    .where("todos.name", name)
     .join("users", "users.id", "user_todos.user_id")
     .join("todos", "todos.id", "user_todos.todo_id")
-	.select("todos.*")
-	.where({name: name})
-	.update(changes)
-	.then(() => {
-		return findUserTodos(userId);
-	})
+    .select("todos.*")
+    .where({ name: name })
+    .update(changes)
+    .then(() => {
+      return db("user_todos")
+	  .where("user_todos.user_id", userId)
+	  .join("users", "users.id", "user_todos.user_id")
+	  .join("todos", "todos.id", "user_todos.todo_id")
+	  .select("todos.*")
+	  .where({ name: name })
+	  });
 }
 
 function update(changes, id) {
