@@ -5,7 +5,7 @@ exports.up = function(knex) {
 
     todos.string('name', 255).notNullable();
 
-    todos.string('noteItems', 500).notNullable();
+    todos.specificType('noteItems', 'text ARRAY').notNullable();
 
     todos.boolean('reoccurring').defaultsTo(false).notNullable();
 
