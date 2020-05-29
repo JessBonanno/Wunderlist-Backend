@@ -33,6 +33,7 @@ router.get("/:id", (req, res) => {
     });
 });
 
+// refactored to return a users todos and all list items on each todo
 router.get("/:id/todos", findUser, (req, res) => {
   Users.findUserTodos(req.params.id)
     .then((todos) => {
@@ -46,8 +47,22 @@ router.get("/:id/todos", findUser, (req, res) => {
     });
 });
 
+// returns id & body of newly created todo 
 router.post("/:id/todos", (req, res) => {
   Users.addTodo(req.params.id, req.body)
+    .then((response) => {
+      res.status(201).json(response);
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error: error.message,
+      });
+    });
+});
+
+// add a list item to a todo
+router.post("/todos/:todoId/list", (req, res) => {
+  Users.addTodoList(req.params.todoId, req.body)
     .then((response) => {
       res.status(201).json(response);
     })
@@ -62,28 +77,29 @@ router.put("/:id/todos", (req, res) => {
   const changes = req.body;
   const name = req.body.name;
   const { id } = req.params;
-  Users.findById(id).then((user) => {
-    if (user) {
-      Users.updateTodoByUserId(changes, name, id).then((updatedTodos) => {
-        if (updatedTodos.length > 0) {
-          res.json(updatedTodos);
-        } else {
-          res.status(404).json({
-            message: 'Could not find that todo for user'
-          })
-        }
+  Users.findById(id)
+    .then((user) => {
+      if (user) {
+        Users.updateTodoByUserId(changes, name, id).then((updatedTodos) => {
+          if (updatedTodos.length > 0) {
+            res.json(updatedTodos);
+          } else {
+            res.status(404).json({
+              message: "Could not find that todo for user",
+            });
+          }
+        });
+      } else {
+        res.status(404).json({
+          message: "Could not find user with that id",
+        });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Failed to update todo",
       });
-    }  else {
-      res.status(404).json({
-        message: "Could not find user with that id",
-      });
-    }
-  })
-  .catch((error) => {
-    res.status(500).json({
-      message: "Failed to update todo",
     });
-  });
 });
 
 router.put("/:id", (req, res) => {

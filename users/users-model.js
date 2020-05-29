@@ -11,6 +11,7 @@ module.exports = {
   remove,
   updateTodoByUserId,
   findUserTodoById,
+  addTodoList,
 };
 async function add(user) {
   return db("users").insert(user, "id");
@@ -28,33 +29,46 @@ function findById(id) {
   return db("users").select("id", "username").where({ id }).first();
 }
 
+// refactored to return todos and all list items on each todo
 function findUserTodos(userId) {
   return db("user_todos")
     .where("user_todos.user_id", userId)
     .join("users", "users.id", "user_todos.user_id")
     .join("todos", "todos.id", "user_todos.todo_id")
-    .select("todos.*");
+    .leftJoin("todo_lists", "todo_lists.todo_id", "todos.id")
+    .select("todos.*", "todo_lists.*");
 }
 
+// takes an array of objects containing list items and sets them to a todo by todoID
+// can also take a single object
+function  addTodoList(todoId, listData) {  
+  return db("todo_lists")
+    .insert(listData)
+    .then((res) => {
+      return db("todos")
+        .where("todos.id", todoId)
+        .leftJoin("todo_lists", "todo_lists.todo_id", "todos.id")
+        .select("todos.*", "todo_lists.*");
+    })
+
+}
+
+// returns id of newly created todo
 function addTodo(userId, todoBody) {
-  return db('todos').insert(todoBody)
-  .then((res)=> {
-    return db('user_todos').insert({
-      'user_id': userId,
-      'todo_id': res[0]
-    })
-    .then(() => {
-      return findUserTodos(userId);
-    })
-  })
-  
-  // return db("user_todos").insert(
-  //   {
-  //     user_id: userId,
-  //     todo_id: todoId,
-  //   },
-  //   "id"
-  // );
+  return db("todos")
+    .insert(todoBody)
+    .then((res) => {
+      console.log(res);
+      return db("user_todos")
+        .insert({
+          user_id: userId,
+          todo_id: res[0],
+        })
+        .then((res) => {
+          console.log(res);
+          return db("todos").where("todos.id", res[0]);
+        });
+    });
 }
 
 function findUserTodoById(id) {
@@ -71,12 +85,12 @@ function updateTodoByUserId(changes, name, userId) {
     .update(changes)
     .then(() => {
       return db("user_todos")
-	  .where("user_todos.user_id", userId)
-	  .join("users", "users.id", "user_todos.user_id")
-	  .join("todos", "todos.id", "user_todos.todo_id")
-	  .select("todos.*")
-	  .where({ name: name })
-	  });
+        .where("user_todos.user_id", userId)
+        .join("users", "users.id", "user_todos.user_id")
+        .join("todos", "todos.id", "user_todos.todo_id")
+        .select("todos.*")
+        .where({ name: name });
+    });
 }
 
 function update(changes, id) {
