@@ -5,7 +5,13 @@ exports.up = function(knex) {
 
     todos.string('name', 255).notNullable();
 
-    todos.string('noteItems', 500).notNullable();
+    // todos
+    //   .integer('todo_lists_id')
+    //   .notNullable()
+    //   .references('todo_id')
+    //   .inTable('todo_lists')
+    //   .onDelete('CASCADE')
+    //   .onUpdate('CASCADE');
 
     todos.boolean('reoccurring').defaultsTo(false).notNullable();
 
