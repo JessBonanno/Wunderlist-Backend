@@ -37,6 +37,8 @@ router.get("/:id", (req, res) => {
 router.get("/:id/todos", findUser, (req, res) => {
   Users.findUserTodos(req.params.id)
     .then((todos) => {
+      console.log(todos);
+      
       res.status(200).json(todos);
     })
     .catch((error) => {
